@@ -137,7 +137,7 @@ class PreferencesProcessor(private val codeGenerator: CodeGenerator) {
     }
 
     private fun TypeSpec.Builder.addReadFunction(className: ClassName) = addFunction(
-        FunSpec.builder("readFrom${className.simpleName.replaceFirstChar { it.uppercase() }}")
+        FunSpec.builder("readFrom${className.simpleName}")
             .addKdoc("Reads data from the [$className] datastore.")
             .receiver(androidContext)
             .addStatement("return dataStore.data")
@@ -151,7 +151,7 @@ class PreferencesProcessor(private val codeGenerator: CodeGenerator) {
     )
 
     private fun TypeSpec.Builder.addWriteFunction(className: ClassName) = addFunction(
-        FunSpec.builder("writeTo${className.simpleName.replaceFirstChar { it.uppercase() }}")
+        FunSpec.builder("writeTo${className.simpleName}")
             .addKdoc("Writes data to the [$className] datastore.")
             .receiver(androidContext)
             .addParameter("t", className)
