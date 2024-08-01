@@ -57,67 +57,64 @@ class PreferencesProcessor(private val codeGenerator: CodeGenerator) {
         .first()
         .value as String
 
-    private fun TypeSpec.Builder.addSerializer(className: ClassName) = addType(
-        TypeSpec.objectBuilder("Serializer")
-            .addKdoc("Serializer for the [$className] datastore.")
-            .addModifiers(KModifier.PRIVATE)
-            .addSuperinterface(
-                ClassName("androidx.datastore.core", "Serializer").parameterizedBy(
-                    className
-                )
-            )
-            .addProperty(
-                PropertySpec.builder("defaultValue", className)
-                    .addModifiers(KModifier.OVERRIDE)
-                    .getter(
-                        FunSpec.getterBuilder()
-                            .addStatement("return %T()", className)
-                            .build()
-                    )
-                    .build()
-            )
-            .addFunction(
-                FunSpec.builder("readFrom")
-                    .addAnnotation(
-                        AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
-                            .addMember(
-                                "%M::class",
-                                MemberName("kotlinx.serialization", "ExperimentalSerializationApi")
-                            )
-                            .build()
-                    )
-                    .addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
-                    .addParameter("input", InputStream::class)
-                    .addStatement(
-                        "return %M.%M(input)",
-                        MemberName("kotlinx.serialization.json", "Json"),
-                        MemberName("kotlinx.serialization.json", "decodeFromStream")
-                    )
-                    .returns(className)
-                    .build()
-            )
-            .addFunction(
-                FunSpec.builder("writeTo")
-                    .addAnnotation(
-                        AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
-                            .addMember(
-                                "%M::class",
-                                MemberName("kotlinx.serialization", "ExperimentalSerializationApi")
-                            )
-                            .build()
-                    )
-                    .addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
-                    .addParameter("t", className)
-                    .addParameter("output", OutputStream::class)
-                    .addStatement(
-                        "%M.%M(t, output)",
-                        MemberName("kotlinx.serialization.json", "Json"),
-                        MemberName("kotlinx.serialization.json", "encodeToStream")
-                    )
-                    .build()
+    private fun TypeSpec.Builder.addSerializer(className: ClassName): TypeSpec.Builder {
+        val experimentalSerializationApiOptIn = AnnotationSpec.builder(
+            ClassName("kotlin", "OptIn")
+        )
+            .addMember(
+                "%M::class",
+                MemberName("kotlinx.serialization", "ExperimentalSerializationApi")
             )
             .build()
-    )
+
+        return addType(
+            TypeSpec.objectBuilder("Serializer")
+                .addKdoc("Serializer for the [$className] datastore.")
+                .addModifiers(KModifier.PRIVATE)
+                .addSuperinterface(
+                    ClassName("androidx.datastore.core", "Serializer").parameterizedBy(
+                        className
+                    )
+                )
+                .addProperty(
+                    PropertySpec.builder("defaultValue", className)
+                        .addModifiers(KModifier.OVERRIDE)
+                        .getter(
+                            FunSpec.getterBuilder()
+                                .addStatement("return %T()", className)
+                                .build()
+                        )
+                        .build()
+                )
+                .addFunction(
+                    FunSpec.builder("readFrom")
+                        .addAnnotation(experimentalSerializationApiOptIn)
+                        .addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
+                        .addParameter("input", InputStream::class)
+                        .addStatement(
+                            "return %M.%M(input)",
+                            MemberName("kotlinx.serialization.json", "Json"),
+                            MemberName("kotlinx.serialization.json", "decodeFromStream")
+                        )
+                        .returns(className)
+                        .build()
+                )
+                .addFunction(
+                    FunSpec.builder("writeTo")
+                        .addAnnotation(experimentalSerializationApiOptIn)
+                        .addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
+                        .addParameter("t", className)
+                        .addParameter("output", OutputStream::class)
+                        .addStatement(
+                            "%M.%M(t, output)",
+                            MemberName("kotlinx.serialization.json", "Json"),
+                            MemberName("kotlinx.serialization.json", "encodeToStream")
+                        )
+                        .build()
+                )
+                .build()
+        )
+    }
 
     private fun TypeSpec.Builder.addDatastore(clazz: KSClassDeclaration): TypeSpec.Builder {
         val type = ClassName("androidx.datastore.core", "DataStore")
