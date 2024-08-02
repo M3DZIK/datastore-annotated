@@ -127,7 +127,7 @@ class PreferencesProcessor(private val codeGenerator: CodeGenerator) {
                 .delegate(
                     "%M(%S, Serializer)",
                     MemberName("androidx.datastore", "dataStore"),
-                    getDataStoreName(clazz)
+                    getDataStoreName(clazz) + ".json"
                 )
                 .build()
         )
