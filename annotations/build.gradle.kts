@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id("java-library")
     alias(libs.plugins.kotlin.jvm)
-//    alias(libs.plugins.nmcp)
+    alias(libs.plugins.nmcp)
 }
 
 java {
@@ -26,10 +26,9 @@ publishConfig {
     }
 }
 
-//nmcp {
-//    publishAllPublications {
-//        username = project.properties["sonatype.username"] as String
-//        password = project.properties["sonatype.password"] as String
-//        publicationType = "USER_MANAGED"
-//    }
-//}
+nmcp {
+    publishAllPublications {
+        username = project.properties["sonatype.username"] as String
+        password = project.properties["sonatype.password"] as String
+    }
+}

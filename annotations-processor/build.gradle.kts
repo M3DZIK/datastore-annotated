@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id("java-library")
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.nmcp)
 }
 
 java {
@@ -31,5 +32,12 @@ publishConfig {
     pom {
         name = "Annotation-based DataStore - KSP Processor"
         description = "KSP Processor for Annotation-based DataStore for Android"
+    }
+}
+
+nmcp {
+    publishAllPublications {
+        username = project.properties["sonatype.username"] as String
+        password = project.properties["sonatype.password"] as String
     }
 }
