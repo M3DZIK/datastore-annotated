@@ -27,6 +27,17 @@ class PreferencesProcessor(private val codeGenerator: CodeGenerator) {
     fun process(clazz: KSClassDeclaration) {
         val className = clazz.toClassName()
 
+        val primaryConstructor = clazz.primaryConstructor ?: throw IllegalArgumentException("No primary constructor for $className")
+        if (primaryConstructor.parameters.isEmpty()) {
+            throw IllegalArgumentException("Class $className has no parameters")
+        }
+        // check that all parameters have a default value
+        for (parameter in primaryConstructor.parameters.iterator()) {
+            if (!parameter.hasDefault) {
+                throw IllegalArgumentException("Parameter $parameter in $className class has no default value")
+            }
+        }
+
         // check if class is annotated with @Serializable
         annotatedSerializable(clazz)
 
